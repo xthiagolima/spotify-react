@@ -1,0 +1,52 @@
+services:
+  front-end:
+    build: ./front-end
+    container_name: react-vite
+    restart: always
+    ports:
+      - "5173:5173"
+    depends_on:
+      - api
+    volumes:
+      - ./front-end/src:/app/src
+      - ./front-end/api:/app/api
+
+  api:
+    build: ./back-end
+    container_name: node-express
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongodb
+    volumes:
+      - ./back-end/api:/app/api
+    environment:
+      MONGO_URI: mongodb://root:hashtag@mongodb:27017/
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: hashtag
+
+  mongo-express:
+    image: mongo-express:latest
+    container_name: mongo-express
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: hashtag
+      ME_CONFIG_MONGODB_URL: mongodb://root:hashtag@mongodb:27017/
+      ME_CONFIG_BASICAUTH: false
+
+volumes:
+  mongo_data:
